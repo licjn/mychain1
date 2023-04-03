@@ -3,8 +3,11 @@ const db = new sqlite3.Database(":memory:");
 
 db.serialize(() => {
   db.run('CREATE TABLE professors (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL)');
-  db.run('CREATE TABLE reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, professorID INTEGER REFERENCES professors(id), university TEXT NOT NULL, rating INTEGER CHECK ( rating >= 0 AND rating <= 10), review TEXT)');
+  db.run('CREATE TABLE reviews (id INTEGER PRIMARY KEY AUTOINCREMENT, professorID INTEGER REFERENCES professors(id), university TEXT NOT NULL, rating INTEGER, review TEXT)');
+  // Trigger that checks rating is between 0 and 10 before inserting new row
+  db.run('CREATE TRIGGER check_rating BEFORE INSERT ON reviews WHEN NEW.rating < 0 OR NEW.rating > 10 BEGIN SELECT RAISE(ABORT, "Rating must be between 0 and 10"); END;');
 });
+
 
 //database function to return all reviews for a professor
 
